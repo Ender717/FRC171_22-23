@@ -5,22 +5,19 @@
 #pragma once
 
 #include <frc2/command/SubsystemBase.h>
-#include <frc/Timer.h>
-#include "rev/CANSparkMax.h"
+#include <frc/Solenoid.h>
+#include "utilities/CANSparkMaxGroup.h"
 
 class ArcadeDrive : public frc2::SubsystemBase 
 {
 private:
-    const double RAMP_RATE = 1.0;
-    
-    rev::CANSparkMax rightFrontMotor{1, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax rightRearMotor{2, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax leftFrontMotor{3, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax leftRearMotor{4, rev::CANSparkMax::MotorType::kBrushless};
-
-    double leftPower;
-    double rightPower;
-    frc::Timer timer;
+    /**
+     * The left and right drive motor groups
+     */
+    CANSparkMaxGroup leftSparks;
+    CANSparkMaxGroup rightSparks;
+    frc::Solenoid leftPiston{frc::PneumaticsModuleType::CTREPCM, 1};
+    frc::Solenoid rightPiston{frc::PneumaticsModuleType::CTREPCM, 2};
 
 public:
     /**
@@ -32,6 +29,11 @@ public:
      * Moves the drive using the designated power levels
      */
     void Move(double leftPower, double rightPower);
+
+    /**
+     * Switches the gears of the drive
+     */
+    void SwitchGears();
 
     /**
      * Will be called periodically whenever the CommandScheduler runs.

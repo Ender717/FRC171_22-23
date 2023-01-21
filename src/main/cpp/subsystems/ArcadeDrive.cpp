@@ -5,42 +5,48 @@
 #include "subsystems/ArcadeDrive.h"
 
 ArcadeDrive::ArcadeDrive() 
-{
-    leftFrontMotor.SetInverted(false);
-    leftRearMotor.SetInverted(false);
-    rightFrontMotor.SetInverted(true);
-    rightRearMotor.SetInverted(true);
+{ 
+    rev::CANSparkMax left1Motor{1, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax left2Motor{2, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax left3Motor{3, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax right1Motor{4, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax right2Motor{5, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax right3Motor{6, rev::CANSparkMax::MotorType::kBrushless};
+    double RAMP_RATE = 1.0;
 
-    leftPower = 0.0;
-    rightPower = 0.0;
-    timer.Start();
+    left1Motor.SetInverted(false);
+    left2Motor.SetInverted(false);
+    left3Motor.SetInverted(false);
+    right1Motor.SetInverted(true);
+    right2Motor.SetInverted(true);
+    right3Motor.SetInverted(true);
+
+    leftSparks.AddCANSparkMax(&left1Motor);
+    leftSparks.AddCANSparkMax(&left2Motor);
+    leftSparks.AddCANSparkMax(&left3Motor);
+    rightSparks.AddCANSparkMax(&right1Motor);
+    rightSparks.AddCANSparkMax(&right2Motor);
+    rightSparks.AddCANSparkMax(&right3Motor);
+
+    leftSparks.SetRampRate(RAMP_RATE);
+    rightSparks.SetRampRate(RAMP_RATE);
 }
 
 void ArcadeDrive::Move(double leftPower, double rightPower)
 {
-    units::second_t loopTime = timer.Get();
-    timer.Reset();
-
     if (std::abs(leftPower) < 0.04)
         leftPower = 0.0;
     if (std::abs(rightPower) < 0.04)
         rightPower = 0.0;
 
-    leftPower *= 0.5;
-    rightPower *= 0.5;
+    leftSparks.Set(leftPower);
+    rightSparks.Set(rightPower);
+}
 
-    if ((std::abs(leftPower) - std::abs(this->leftPower)) / loopTime.value() > RAMP_RATE)
-        leftPower = this->leftPower + (leftPower / std::abs(leftPower)) * RAMP_RATE * loopTime.value();
-    if ((std::abs(rightPower) - std::abs(this->rightPower)) / loopTime.value() > RAMP_RATE)
-        rightPower = this->rightPower + (rightPower / std::abs(rightPower)) * RAMP_RATE * loopTime.value();
-    
-    this->leftPower = leftPower;
-    this->rightPower = rightPower;
-
-    leftFrontMotor.Set(leftPower);
-    leftRearMotor.Set(leftPower);
-    rightFrontMotor.Set(rightPower);
-    rightRearMotor.Set(rightPower);
+void ArcadeDrive::SwitchGears()
+{
+    leftPiston.Toggle();
+    rightPiston.Toggle();
 }
 
 void ArcadeDrive::Periodic() 

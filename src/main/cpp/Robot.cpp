@@ -81,6 +81,9 @@ void Robot::TeleopPeriodic()
     double right = controller.GetLeftY() + controller.GetRightX();
 
     m_container.SetDrive(-left, -right);
+
+    if (controller.GetAButtonPressed())
+        m_container.SwitchDriveGears();
 }
 
 /**

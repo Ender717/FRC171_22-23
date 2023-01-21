@@ -17,6 +17,11 @@ void RobotContainer::SetDrive(double leftPower, double rightPower)
     arcadeDrive.Move(leftPower, rightPower);
 }
 
+void RobotContainer::SwitchDriveGears()
+{
+    arcadeDrive.SwitchGears();
+}
+
 void RobotContainer::ConfigureButtonBindings() 
 {
     // Configure your button bindings here

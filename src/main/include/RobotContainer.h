@@ -32,5 +32,7 @@ public:
 
     void SetDrive(double leftPower, double rightPower);
 
+    void SwitchDriveGears();
+
     frc2::Command* GetAutonomousCommand();
 };
