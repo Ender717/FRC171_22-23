@@ -15,6 +15,7 @@ void Robot::RobotInit()
     testLeft.AddCANSparkMax(left1);
     testLeft.AddCANSparkMax(left2);
     testLeft.AddCANSparkMax(left3);
+    testLeft.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     testLeft.SetRampRate(4.0);
 
     rev::CANSparkMax* right1 = new rev::CANSparkMax{4, rev::CANSparkMax::MotorType::kBrushless};
@@ -23,6 +24,7 @@ void Robot::RobotInit()
     testRight.AddCANSparkMax(right1);
     testRight.AddCANSparkMax(right2);
     testRight.AddCANSparkMax(right3);
+    testRight.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     testRight.SetRampRate(4.0);
 
     frc::DoubleSolenoid* transmission1 = new frc::DoubleSolenoid{frc::PneumaticsModuleType::CTREPCM, 0, 1};
