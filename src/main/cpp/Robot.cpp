@@ -9,7 +9,25 @@
 
 void Robot::RobotInit() 
 {
+    rev::CANSparkMax* left1 = new rev::CANSparkMax{1, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax* left2 = new rev::CANSparkMax{2, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax* left3 = new rev::CANSparkMax{3, rev::CANSparkMax::MotorType::kBrushless};
+    testLeft.AddCANSparkMax(left1);
+    testLeft.AddCANSparkMax(left2);
+    testLeft.AddCANSparkMax(left3);
+    testLeft.SetRampRate(4.0);
 
+    rev::CANSparkMax* right1 = new rev::CANSparkMax{4, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax* right2 = new rev::CANSparkMax{5, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax* right3 = new rev::CANSparkMax{6, rev::CANSparkMax::MotorType::kBrushless};
+    testRight.AddCANSparkMax(right1);
+    testRight.AddCANSparkMax(right2);
+    testRight.AddCANSparkMax(right3);
+    testRight.SetRampRate(4.0);
+
+    frc::DoubleSolenoid* transmission1 = new frc::DoubleSolenoid{frc::PneumaticsModuleType::CTREPCM, 0, 1};
+    testTransmission.AddDoubleSolenoid(transmission1);
+    testTransmission.Set(frc::DoubleSolenoid::kForward);
 }
 
 /**
@@ -46,12 +64,7 @@ void Robot::DisabledPeriodic()
  */
 void Robot::AutonomousInit() 
 {
-    m_autonomousCommand = m_container.GetAutonomousCommand();
-
-    if (m_autonomousCommand != nullptr) 
-    {
-        m_autonomousCommand->Schedule();
-    }
+    
 }
 
 void Robot::AutonomousPeriodic() 
@@ -80,10 +93,21 @@ void Robot::TeleopPeriodic()
     double left = controller.GetLeftY() - controller.GetRightX();
     double right = controller.GetLeftY() + controller.GetRightX();
 
-    m_container.SetDrive(-left, -right);
+    if (std::abs(left) < 0.08)
+        left = 0;
+    if (std::abs(right) < 0.08)
+        right = 0;
 
-    if (controller.GetAButtonPressed())
-        m_container.SwitchDriveGears();
+    testLeft.Set(left);
+    testRight.Set(right);
+
+    if (controller.GetRightBumperPressed())
+    {
+        if (testTransmission.Get() == frc::DoubleSolenoid::kForward)
+            testTransmission.Set(frc::DoubleSolenoid::kReverse);
+        else
+            testTransmission.Set(frc::DoubleSolenoid::kForward);
+    }
 }
 
 /**

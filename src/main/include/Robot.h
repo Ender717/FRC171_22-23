@@ -7,8 +7,8 @@
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
 #include <frc2/command/Command.h>
-
-#include "RobotContainer.h"
+#include "utilities/CANSparkMaxGroup.h"
+#include "utilities/DoubleSolenoidGroup.h"
 
 class Robot : public frc::TimedRobot 
 {
@@ -17,8 +17,9 @@ private:
     // doesn't have undefined behavior and potentially crash.
     frc2::Command* m_autonomousCommand = nullptr;
     frc::XboxController controller{0};
-
-    RobotContainer m_container;
+    CANSparkMaxGroup testLeft;
+    CANSparkMaxGroup testRight;
+    DoubleSolenoidGroup testTransmission;
 
 public:
     void RobotInit() override;
