@@ -6,20 +6,13 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
-#include <frc2/command/Command.h>
-#include "utilities/CANSparkMaxGroup.h"
-#include "utilities/DoubleSolenoidGroup.h"
+#include "subsystems/TankDrive.h"
 
 class Robot : public frc::TimedRobot 
 {
 private:
-    // Have it null by default so that if testing teleop it
-    // doesn't have undefined behavior and potentially crash.
-    frc2::Command* m_autonomousCommand = nullptr;
     frc::XboxController controller{0};
-    CANSparkMaxGroup testLeft;
-    CANSparkMaxGroup testRight;
-    DoubleSolenoidGroup testTransmission;
+    TankDrive* tankDrive = nullptr;
 
 public:
     void RobotInit() override;

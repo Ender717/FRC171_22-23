@@ -9,27 +9,37 @@
 
 void Robot::RobotInit() 
 {
+    // Create the left side of the drive
+    CANSparkMaxGroup driveLeftMotors;
     rev::CANSparkMax* left1 = new rev::CANSparkMax{1, rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax* left2 = new rev::CANSparkMax{2, rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax* left3 = new rev::CANSparkMax{3, rev::CANSparkMax::MotorType::kBrushless};
-    testLeft.AddCANSparkMax(left1);
-    testLeft.AddCANSparkMax(left2);
-    testLeft.AddCANSparkMax(left3);
-    testLeft.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    testLeft.SetRampRate(4.0);
+    driveLeftMotors.AddCANSparkMax(left1);
+    driveLeftMotors.AddCANSparkMax(left2);
+    driveLeftMotors.AddCANSparkMax(left3);
+    driveLeftMotors.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    driveLeftMotors.SetRampRate(4.0);
 
+    // Create the right side of the drive
+    CANSparkMaxGroup driveRightMotors;
     rev::CANSparkMax* right1 = new rev::CANSparkMax{4, rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax* right2 = new rev::CANSparkMax{5, rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax* right3 = new rev::CANSparkMax{6, rev::CANSparkMax::MotorType::kBrushless};
-    testRight.AddCANSparkMax(right1);
-    testRight.AddCANSparkMax(right2);
-    testRight.AddCANSparkMax(right3);
-    testRight.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    testRight.SetRampRate(4.0);
+    driveRightMotors.AddCANSparkMax(right1);
+    driveRightMotors.AddCANSparkMax(right2);
+    driveRightMotors.AddCANSparkMax(right3);
+    driveRightMotors.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    driveRightMotors.SetRampRate(4.0);
 
+    // Create the transmission of the drive
+    DoubleSolenoidGroup driveTransmission;
     frc::DoubleSolenoid* transmission1 = new frc::DoubleSolenoid{frc::PneumaticsModuleType::CTREPCM, 0, 1};
-    testTransmission.AddDoubleSolenoid(transmission1);
-    testTransmission.Set(frc::DoubleSolenoid::kForward);
+    driveTransmission.AddDoubleSolenoid(transmission1);
+    driveTransmission.Set(frc::DoubleSolenoid::kForward);
+
+    // Create the tankDrive
+    tankDrive = new TankDrive(driveLeftMotors, driveRightMotors, driveTransmission);
+    tankDrive->setRampRate(4.0, 8.0);
 }
 
 /**
@@ -76,15 +86,7 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit() 
 {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != nullptr) 
-    {
-        m_autonomousCommand->Cancel();
-        m_autonomousCommand = nullptr;
-    }
+    
 }
 
 /**
@@ -92,23 +94,25 @@ void Robot::TeleopInit()
  */
 void Robot::TeleopPeriodic() 
 {
-    double left = controller.GetLeftY() - controller.GetRightX();
-    double right = controller.GetLeftY() + controller.GetRightX();
-
-    if (std::abs(left) < 0.08)
-        left = 0;
-    if (std::abs(right) < 0.08)
-        right = 0;
-
-    testLeft.Set(left);
-    testRight.Set(right);
-
-    if (controller.GetRightBumperPressed())
+    if (tankDrive != nullptr)
     {
-        if (testTransmission.Get() == frc::DoubleSolenoid::kForward)
-            testTransmission.Set(frc::DoubleSolenoid::kReverse);
-        else
-            testTransmission.Set(frc::DoubleSolenoid::kForward);
+        double left = controller.GetLeftY() - controller.GetRightX();
+        double right = controller.GetLeftY() + controller.GetRightX();
+
+        if (std::abs(left) < 0.08)
+            left = 0;
+        if (std::abs(right) < 0.08)
+            right = 0;
+
+        tankDrive->move(left, right);
+
+        if (controller.GetRightBumperPressed())
+        {
+            if (tankDrive->getGear() == Gear::HIGH)
+                tankDrive->setGear(Gear::LOW);
+            else
+                tankDrive->setGear(Gear::HIGH);
+        }
     }
 }
 
