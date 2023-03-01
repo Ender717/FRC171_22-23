@@ -8,6 +8,11 @@ TankDrive::TankDrive()
 
 void TankDrive::initialize()
 {
+    // Invert the right motors
+    rightMotor1.SetInverted(true);
+    rightMotor2.SetInverted(true);
+    rightMotor3.SetInverted(true);
+    
     // Set the motors to brake
     leftMotor1.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     leftMotor2.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);

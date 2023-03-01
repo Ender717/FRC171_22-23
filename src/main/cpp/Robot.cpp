@@ -12,9 +12,6 @@ void Robot::RobotInit()
     // Initialize the drive
     tankDrive.initialize();
 
-    // Initialize the intake
-    intakeRight.SetInverted(true);
-
     // Set the controller zero position
     leftZeroX = controller.GetLeftX();
     leftZeroY = controller.GetLeftY();
@@ -74,10 +71,10 @@ void Robot::TeleopInit()
  */
 void Robot::TeleopPeriodic() 
 {
-    double left = (controller.GetLeftY() - leftZeroY) - (controller.GetRightX() - rightZeroX);
-    double right = (controller.GetLeftY() - leftZeroY) + (controller.GetRightX() - rightZeroX);
+    double leftDrivePower = (controller.GetLeftY() - leftZeroY) - (controller.GetRightX() - rightZeroX);
+    double rightDrivePower = (controller.GetLeftY() - leftZeroY) + (controller.GetRightX() - rightZeroX);
 
-    tankDrive.move(left, right);
+    tankDrive.move(leftDrivePower, rightDrivePower);
 
     if (controller.GetRightBumperPressed())
     {
@@ -87,9 +84,8 @@ void Robot::TeleopPeriodic()
             tankDrive.setGear(Gear::HIGH);
     }
 
-    double intake = controller.GetLeftTriggerAxis() - controller.GetRightTriggerAxis();
-    intakeLeft.Set(intake);
-    intakeRight.Set(intake);
+    double intakePower = controller.GetLeftTriggerAxis() - controller.GetRightTriggerAxis();
+    intake.move(intakePower);
 }
 
 /**

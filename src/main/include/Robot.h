@@ -6,15 +6,14 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
-#include "subsystems/TankDrive.h"
+#include "subsystems/Subsystems.h"
 
 class Robot : public frc::TimedRobot 
 {
 private:
     frc::XboxController controller{0};
     TankDrive tankDrive;
-    rev::CANSparkMax intakeLeft{7, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax intakeRight{8, rev::CANSparkMax::MotorType::kBrushless};
+    Intake intake;
     double leftZeroX;
     double leftZeroY;
     double rightZeroX;
