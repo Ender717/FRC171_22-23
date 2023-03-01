@@ -12,7 +12,13 @@ class Robot : public frc::TimedRobot
 {
 private:
     frc::XboxController controller{0};
-    TankDrive* tankDrive = nullptr;
+    TankDrive tankDrive;
+    rev::CANSparkMax intakeLeft{7, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax intakeRight{8, rev::CANSparkMax::MotorType::kBrushless};
+    double leftZeroX;
+    double leftZeroY;
+    double rightZeroX;
+    double rightZeroY;
 
 public:
     void RobotInit() override;

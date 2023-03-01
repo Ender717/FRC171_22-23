@@ -2,9 +2,12 @@
 #ifndef TANK_DRIVE_H
 #define TANK_DRIVE_H
 
+// Included libraries
+#include <frc/DoubleSolenoid.h>>
+
 // Included headers
-#include "utilities/CANSparkMaxGroup.h"
-#include "utilities/DoubleSolenoidGroup.h"
+#include "rev/CANSparkMax.h"
+
 
 /**
  * This is an enum for the different gears available on the drive
@@ -24,26 +27,19 @@ class TankDrive
 {
 private:
     /**
-     * The default ramp rate of the drive
+     * The motors for the drive
      */
-    const static double DEFAULT_RAMP_RATE = 4.0;
+    rev::CANSparkMax leftMotor1{7, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax leftMotor2{8, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax leftMotor3{9, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax rightMotor1{4, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax rightMotor2{5, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax rightMotor3{6, rev::CANSparkMax::MotorType::kBrushless};
 
     /**
-     * The motors on the drive
+     * The solenoids for the transmission
      */
-    CANSparkMaxGroup leftMotors;
-    CANSparkMaxGroup rightMotors;
-
-    /**
-     * The transmission on the drive
-     */
-    DoubleSolenoidGroup transmission;
-
-    /**
-     * The ramp rate for each gear
-     */
-    double highRampRate;
-    double lowRampRate;
+    frc::DoubleSolenoid transmissionPiston1{1, frc::PneumaticsModuleType::REVPH, 0, 1};
 
     /**
      * Which gear the drive is currently in
@@ -55,50 +51,6 @@ public:
      * Default constructor
      */
     TankDrive();
-
-    /**
-     * Parameterized constructor
-     * @param leftMotors The left motor group
-     * @param rightMotors The right motor group
-     * @param transmission The transmission solenoids
-     */
-    TankDrive(CANSparkMaxGroup leftMotors, CANSparkMaxGroup rightMotors, DoubleSolenoidGroup transmission);
-
-    /**
-     * Copy constructor
-     * @param copy The tank drive being copied
-     */
-    TankDrive(const TankDrive& copy);
-
-    /**
-     * Destructor
-     */
-    ~TankDrive();
-
-    /**
-     * Adds a motor to the left side of the drive
-     * @param motor The motor being added
-     */
-    void addLeftMotor(rev::CANSparkMax* motor);
-    
-    /**
-     * Adds a motor to the right side of the drive
-     * @param motor The motor being added
-     */
-    void addRightMotor(rev::CANSparkMax* motor);
-
-    /**
-     * Adds a solenoid to the transmission
-     * @param solenoid The solenoid being added
-     */
-    void addTransmissionSolenoid(frc::DoubleSolenoid* solenoid);
-
-    /**
-     * Sets the ramp rate of the drive
-     * @param highRampRate The ramp rate of the drive in high gear
-     * @param lowRampRate The ramp rate of the drive in low gear
-     */
-    void setRampRate(double highRampRate, double lowRampRate = DEFAULT_RAMP_RATE);
 
     /**
      * Initializes the tank drive
@@ -123,13 +75,6 @@ public:
      * @return The current gear
      */
     Gear getGear();
-
-    /**
-     * Assignment operator overload for TankDrive
-     * @param rhs The TankDrive object on the right hand side of the operator
-     * @return This TankDrive with the assigned values
-     */
-    TankDrive& operator=(const TankDrive& rhs);
 };
 
 #endif

@@ -9,37 +9,17 @@
 
 void Robot::RobotInit() 
 {
-    // Create the left side of the drive
-    CANSparkMaxGroup driveLeftMotors;
-    rev::CANSparkMax* left1 = new rev::CANSparkMax{1, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax* left2 = new rev::CANSparkMax{2, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax* left3 = new rev::CANSparkMax{3, rev::CANSparkMax::MotorType::kBrushless};
-    driveLeftMotors.AddCANSparkMax(left1);
-    driveLeftMotors.AddCANSparkMax(left2);
-    driveLeftMotors.AddCANSparkMax(left3);
-    driveLeftMotors.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    driveLeftMotors.SetRampRate(4.0);
+    // Initialize the drive
+    tankDrive.initialize();
 
-    // Create the right side of the drive
-    CANSparkMaxGroup driveRightMotors;
-    rev::CANSparkMax* right1 = new rev::CANSparkMax{4, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax* right2 = new rev::CANSparkMax{5, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax* right3 = new rev::CANSparkMax{6, rev::CANSparkMax::MotorType::kBrushless};
-    driveRightMotors.AddCANSparkMax(right1);
-    driveRightMotors.AddCANSparkMax(right2);
-    driveRightMotors.AddCANSparkMax(right3);
-    driveRightMotors.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    driveRightMotors.SetRampRate(4.0);
+    // Initialize the intake
+    intakeRight.SetInverted(true);
 
-    // Create the transmission of the drive
-    DoubleSolenoidGroup driveTransmission;
-    frc::DoubleSolenoid* transmission1 = new frc::DoubleSolenoid{frc::PneumaticsModuleType::CTREPCM, 0, 1};
-    driveTransmission.AddDoubleSolenoid(transmission1);
-    driveTransmission.Set(frc::DoubleSolenoid::kForward);
-
-    // Create the tankDrive
-    tankDrive = new TankDrive(driveLeftMotors, driveRightMotors, driveTransmission);
-    tankDrive->setRampRate(4.0, 8.0);
+    // Set the controller zero position
+    leftZeroX = controller.GetLeftX();
+    leftZeroY = controller.GetLeftY();
+    rightZeroX = controller.GetRightX();
+    rightZeroY = controller.GetRightY();
 }
 
 /**
@@ -94,26 +74,22 @@ void Robot::TeleopInit()
  */
 void Robot::TeleopPeriodic() 
 {
-    if (tankDrive != nullptr)
+    double left = (controller.GetLeftY() - leftZeroY) - (controller.GetRightX() - rightZeroX);
+    double right = (controller.GetLeftY() - leftZeroY) + (controller.GetRightX() - rightZeroX);
+
+    tankDrive.move(left, right);
+
+    if (controller.GetRightBumperPressed())
     {
-        double left = controller.GetLeftY() - controller.GetRightX();
-        double right = controller.GetLeftY() + controller.GetRightX();
-
-        if (std::abs(left) < 0.08)
-            left = 0;
-        if (std::abs(right) < 0.08)
-            right = 0;
-
-        tankDrive->move(left, right);
-
-        if (controller.GetRightBumperPressed())
-        {
-            if (tankDrive->getGear() == Gear::HIGH)
-                tankDrive->setGear(Gear::LOW);
-            else
-                tankDrive->setGear(Gear::HIGH);
-        }
+        if (tankDrive.getGear() == Gear::HIGH)
+            tankDrive.setGear(Gear::LOW);
+        else
+            tankDrive.setGear(Gear::HIGH);
     }
+
+    double intake = controller.GetLeftTriggerAxis() - controller.GetRightTriggerAxis();
+    intakeLeft.Set(intake);
+    intakeRight.Set(intake);
 }
 
 /**
